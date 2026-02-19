@@ -6,6 +6,18 @@ import pandas as pd
 
 st.set_page_config(page_title="AI House Valuer", page_icon="🏠")
 
+# --- THIS IS THE NEW CLEANUP PART ---
+hide_streamlit_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            header {visibility: hidden;}
+            .block-container {padding-top: 1rem;}
+            </style>
+            """
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+# --- END OF CLEANUP PART ---
+
 def load_model():
     possible_paths = ['house_price_model.json', 'HOUSE_PRICE_PROJECT/house_price_model.json']
     for path in possible_paths:
@@ -26,7 +38,7 @@ if st.button("Predict Price"):
     bst = load_model()
     if bst:
         try:
-            # 1. List of ALL 75 features the model expects (from your error message)
+            # 1. List of ALL 75 features the model expects
             all_features = [
                 'Id', 'MSSubClass', 'MSZoning', 'LotFrontage', 'LotArea', 'Street', 'LotShape', 'LandContour', 
                 'Utilities', 'LotConfig', 'LandSlope', 'Neighborhood', 'Condition1', 'Condition2', 'BldgType', 
@@ -51,22 +63,16 @@ if st.button("Predict Price"):
 
             # 4. Convert to DataFrame and predict
             input_df = pd.DataFrame(input_dict)
-            
-            # Reorder columns to match exactly what the model expects
             input_df = input_df[all_features]
             
             dmat = xgb.DMatrix(input_df)
             prediction = bst.predict(dmat)
-            dmat = xgb.DMatrix(input_df)
-            prediction = bst.predict(dmat)
             
             # Professional Output
-            st.markdown("---") # Adds a divider line
+            st.markdown("---") 
             st.subheader("Market Analysis Results")
             st.metric(label="Estimated Property Value", value=f"${prediction[0]:,.2f}")
             st.caption("Disclaimer: This AI-generated estimate is based on historical market data.")
-            
-            st.success(f"### Estimated Price: ${prediction[0]:,.2f}")
             
         except Exception as e:
             st.error(f"Prediction Error: {e}")
