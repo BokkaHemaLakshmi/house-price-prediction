@@ -7,7 +7,7 @@ import pandas as pd
 # 1. Page Configuration
 st.set_page_config(page_title="AI House Valuer", page_icon="🏠")
 
-# 2. Professional UI "Suit" (Hiding Streamlit headers/footers)
+# 2. Professional UI "Suit" (Hides Streamlit decorations)
 hide_style = """
             <style>
             #MainMenu {visibility: hidden;}
@@ -20,6 +20,7 @@ st.markdown(hide_style, unsafe_allow_html=True)
 
 # 3. Model Loading Logic
 def load_model():
+    # Checking both possible paths
     possible_paths = ['house_price_model.json', 'HOUSE_PRICE_PROJECT/house_price_model.json']
     for path in possible_paths:
         if os.path.exists(path):
@@ -30,9 +31,9 @@ def load_model():
 
 # 4. App Interface
 st.title("🏠 Luxury House Price Predictor")
-st.write("Adjust the sliders below to estimate the market value of your property.")
+st.write("Enter property details to get an AI-powered market valuation.")
 
-# User Inputs
+# User Inputs organized in columns
 col1, col2 = st.columns(2)
 with col1:
     quality = st.slider("Overall Quality (1-10)", 1, 10, 6)
@@ -60,20 +61,15 @@ if st.button("Calculate Market Value"):
                 'MiscVal', 'MoSold', 'YrSold', 'SaleType', 'SaleCondition'
             ]
 
-            # Create baseline dictionary with "Standard House" values (avoiding the 0-value problem)
+            # Create baseline dictionary with "Standard House" values
             input_dict = {feat: [0] for feat in all_features}
             
-            # Setting default 'average' values so the model recognizes it as a real house
+            # Setting default averages so the model recognizes it as a real house
             input_dict['MSSubClass'] = [60]
-            input_dict['LotArea'] = [area * 6] # Estimated lot size based on house size
+            input_dict['LotArea'] = [int(area * 6)] 
             input_dict['OverallCond'] = [5]
             input_dict['FullBath'] = [2]
             input_dict['BedroomAbvGr'] = [3]
             input_dict['GarageCars'] = [2]
             
-            # Applying User Inputs
-            input_dict['OverallQual'] = [quality]
-            input_dict['GrLivArea'] = [area]
-            input_dict['YearBuilt'] = [year]
-            input_dict['YearRemodAdd'] = [year]
-            input_dict['Tot
+            # Applying User Inputs from Sliders
