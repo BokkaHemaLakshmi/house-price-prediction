@@ -57,8 +57,15 @@ if st.button("Predict Price"):
             
             dmat = xgb.DMatrix(input_df)
             prediction = bst.predict(dmat)
+            dmat = xgb.DMatrix(input_df)
+            prediction = bst.predict(dmat)
             
-            st.balloons()
+            # Professional Output
+            st.markdown("---") # Adds a divider line
+            st.subheader("Market Analysis Results")
+            st.metric(label="Estimated Property Value", value=f"${prediction[0]:,.2f}")
+            st.caption("Disclaimer: This AI-generated estimate is based on historical market data.")
+            
             st.success(f"### Estimated Price: ${prediction[0]:,.2f}")
             
         except Exception as e:
