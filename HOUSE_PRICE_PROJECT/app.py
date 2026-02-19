@@ -4,10 +4,11 @@ import xgboost as xgb
 import os
 import pandas as pd
 
+# 1. Page Configuration
 st.set_page_config(page_title="AI House Valuer", page_icon="🏠")
 
-# --- THIS IS THE NEW CLEANUP PART ---
-hide_streamlit_style = """
+# 2. Professional UI "Suit" (Hiding Streamlit headers/footers)
+hide_style = """
             <style>
             #MainMenu {visibility: hidden;}
             footer {visibility: hidden;}
@@ -15,9 +16,9 @@ hide_streamlit_style = """
             .block-container {padding-top: 1rem;}
             </style>
             """
-st.markdown(hide_streamlit_style, unsafe_allow_html=True)
-# --- END OF CLEANUP PART ---
+st.markdown(hide_style, unsafe_allow_html=True)
 
+# 3. Model Loading Logic
 def load_model():
     possible_paths = ['house_price_model.json', 'HOUSE_PRICE_PROJECT/house_price_model.json']
     for path in possible_paths:
@@ -27,18 +28,24 @@ def load_model():
             return model
     return None
 
+# 4. App Interface
 st.title("🏠 Luxury House Price Predictor")
+st.write("Adjust the sliders below to estimate the market value of your property.")
 
-# The 3 inputs the user cares about
-quality = st.slider("Overall Quality (1-10)", 1, 10, 6)
-year = st.slider("Year Built", 1880, 2010, 1995)
-area = st.number_input("Living Area (SqFt)", 500, 5000, 1500)
+# User Inputs
+col1, col2 = st.columns(2)
+with col1:
+    quality = st.slider("Overall Quality (1-10)", 1, 10, 6)
+    year = st.slider("Year Built", 1880, 2024, 1995)
+with col2:
+    area = st.number_input("Living Area (SqFt)", 500, 10000, 1500)
+    rooms = st.slider("Total Rooms", 2, 15, 6)
 
-if st.button("Predict Price"):
+if st.button("Calculate Market Value"):
     bst = load_model()
     if bst:
         try:
-            # 1. List of ALL 75 features the model expects
+            # All 75 features the model expects
             all_features = [
                 'Id', 'MSSubClass', 'MSZoning', 'LotFrontage', 'LotArea', 'Street', 'LotShape', 'LandContour', 
                 'Utilities', 'LotConfig', 'LandSlope', 'Neighborhood', 'Condition1', 'Condition2', 'BldgType', 
@@ -53,28 +60,20 @@ if st.button("Predict Price"):
                 'MiscVal', 'MoSold', 'YrSold', 'SaleType', 'SaleCondition'
             ]
 
-            # 2. Create a dictionary with all 0s
+            # Create baseline dictionary with "Standard House" values (avoiding the 0-value problem)
             input_dict = {feat: [0] for feat in all_features}
-
-            # 3. Fill in the actual user values
+            
+            # Setting default 'average' values so the model recognizes it as a real house
+            input_dict['MSSubClass'] = [60]
+            input_dict['LotArea'] = [area * 6] # Estimated lot size based on house size
+            input_dict['OverallCond'] = [5]
+            input_dict['FullBath'] = [2]
+            input_dict['BedroomAbvGr'] = [3]
+            input_dict['GarageCars'] = [2]
+            
+            # Applying User Inputs
             input_dict['OverallQual'] = [quality]
             input_dict['GrLivArea'] = [area]
             input_dict['YearBuilt'] = [year]
-
-            # 4. Convert to DataFrame and predict
-            input_df = pd.DataFrame(input_dict)
-            input_df = input_df[all_features]
-            
-            dmat = xgb.DMatrix(input_df)
-            prediction = bst.predict(dmat)
-            
-            # Professional Output
-            st.markdown("---") 
-            st.subheader("Market Analysis Results")
-            st.metric(label="Estimated Property Value", value=f"${prediction[0]:,.2f}")
-            st.caption("Disclaimer: This AI-generated estimate is based on historical market data.")
-            
-        except Exception as e:
-            st.error(f"Prediction Error: {e}")
-    else:
-        st.error("Model file not found.")
+            input_dict['YearRemodAdd'] = [year]
+            input_dict['Tot
