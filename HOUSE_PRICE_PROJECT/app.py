@@ -23,7 +23,7 @@ if mode:
     card_color = "rgba(30, 41, 59, 0.9)"
     btn_color = "#3B82F6"
 else:
-    bg_overlay = "rgba(255, 255, 255, 0.85)"  # Pure White
+    bg_overlay = "rgba(255, 255, 255, 0.1)"  # Pure White
     text_color = "#1E293B"
     card_color = "rgba(248, 250, 252, 0.9)"
     btn_color = "#2563EB"
@@ -47,8 +47,8 @@ st.markdown(f"""
         backdrop-filter: blur(8px);
     }}
     div.stButton > button:first-child {{
-        background-color: {btn_color};
-        color: white;
+        background-color: #7DD3FC;
+        color: #0369a1;
         border-radius: 8px;
         width: 100%;
         height: 3em;
