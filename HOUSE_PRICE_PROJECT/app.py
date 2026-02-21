@@ -5,6 +5,32 @@ import joblib
 import plotly.express as px
 import os
 
+# --- THEME SELECTOR ---
+theme = st.sidebar.selectbox("Choose Theme", ["☀️ Light Mode", "🌙 Night Mode"])
+
+if theme == "🌙 Night Mode":
+    bg_color = "#0F172A"  # Dark Navy
+    text_color = "#F8FAFC" # Off White
+    card_color = "#1E293B" # Slate
+else:
+    bg_color = "#FFFFFF"  # White
+    text_color = "#1E293B" # Dark Slate
+    card_color = "#F8FAFC" # Light Gray
+
+# --- APPLY DYNAMIC CSS ---
+st.markdown(f"""
+    <style>
+    .stApp {{ background-color: {bg_color}; color: {text_color}; }}
+    .price-card {{ 
+        background-color: {card_color}; 
+        border: 1px solid #2563EB; 
+        color: {text_color};
+    }}
+    /* Make sidebar match theme */
+    [data-testid="stSidebar"] {{ background-color: {card_color}; }}
+    </style>
+    """, unsafe_allow_html=True)
+
 # --- 1. PAGE SETUP ---
 st.set_page_config(page_title="AI Mansion Valuer", layout="wide", page_icon="🏡")
 
